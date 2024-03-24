@@ -18,7 +18,7 @@
   <VisualBasic.Settings>
     <x:Null />
   </VisualBasic.Settings>
-  <sap:VirtualizedContainerService.HintSize>962.4,26308</sap:VirtualizedContainerService.HintSize>
+  <sap:VirtualizedContainerService.HintSize>962.4,22476.8</sap:VirtualizedContainerService.HintSize>
   <sap2010:WorkflowViewState.IdRef>Read_PDF_1</sap2010:WorkflowViewState.IdRef>
   <TextExpression.NamespacesForImplementation>
     <scg:List x:TypeArguments="x:String" Capacity="66">
@@ -114,7 +114,7 @@
       <AssemblyReference>WindowsBase</AssemblyReference>
     </scg:List>
   </TextExpression.ReferencesForImplementation>
-  <Sequence DisplayName="Read_PDF" sap:VirtualizedContainerService.HintSize="972.8,26203.2" sap2010:WorkflowViewState.IdRef="Sequence_1">
+  <Sequence DisplayName="Read_PDF" sap:VirtualizedContainerService.HintSize="972.8,22412" sap2010:WorkflowViewState.IdRef="Sequence_1">
     <Sequence.Variables>
       <Variable x:TypeArguments="x:Boolean" Name="empresaExists" />
       <Variable x:TypeArguments="x:Boolean" Name="CIFexists" />
@@ -129,6 +129,7 @@
       <Variable x:TypeArguments="scg:IEnumerable(str:Match)" Name="listFechas2" />
       <Variable x:TypeArguments="x:Boolean" Name="validacionNegativaExists" />
       <Variable x:TypeArguments="x:String" Name="pdfTextLeyenda" />
+      <Variable x:TypeArguments="x:Double" Name="similarityEmpresa" />
     </Sequence.Variables>
     <sap:WorkflowViewStateService.ViewState>
       <scg:Dictionary x:TypeArguments="x:String, x:Object">
@@ -168,48 +169,84 @@
         </Sequence>
       </ui:CommentOut.Body>
     </ui:CommentOut>
-    <If Condition="[pdfText.Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;Á&quot;,&quot;A&quot;).Replace(&quot;È&quot;,&quot;E&quot;).Replace(&quot;À&quot;,&quot;A&quot;).Replace(&quot;É&quot;,&quot;E&quot;).Replace(&quot;Ó&quot;,&quot;O&quot;).Replace(&quot;Ò&quot;,&quot;O&quot;).Replace(&quot;Ì&quot;,&quot;I&quot;).Replace(&quot;Í&quot;,&quot;I&quot;).Replace(&quot;Ú&quot;,&quot;U&quot;).Replace(&quot;Ù&quot;,&quot;U&quot;).Contains(in_EmpresaContratista.Replace(&quot;Á&quot;,&quot;A&quot;).Replace(&quot;È&quot;,&quot;E&quot;).Replace(&quot;À&quot;,&quot;A&quot;).Replace(&quot;É&quot;,&quot;E&quot;).Replace(&quot;Ó&quot;,&quot;O&quot;).Replace(&quot;Ò&quot;,&quot;O&quot;).Replace(&quot;Ì&quot;,&quot;I&quot;).Replace(&quot;Í&quot;,&quot;I&quot;).Replace(&quot;Ú&quot;,&quot;U&quot;).Replace(&quot;Ù&quot;,&quot;U&quot;).Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;,S.L.&quot;,&quot;&quot;).Replace(&quot;ABELLO&quot;,&quot;&quot;).Replace(&quot;,SLU&quot;,&quot;&quot;).Replace(&quot;,&quot;,&quot;&quot;))]" DisplayName="If empresa contratista exists" sap:VirtualizedContainerService.HintSize="910.4,525.6" sap2010:WorkflowViewState.IdRef="If_1">
-      <sap:WorkflowViewStateService.ViewState>
-        <scg:Dictionary x:TypeArguments="x:String, x:Object">
-          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
-          <x:Boolean x:Key="IsPinned">False</x:Boolean>
-        </scg:Dictionary>
-      </sap:WorkflowViewStateService.ViewState>
-      <If.Then>
-        <Sequence sap:VirtualizedContainerService.HintSize="476.8,171.2" sap2010:WorkflowViewState.IdRef="Sequence_2">
+    <ui:InvokeCode Code="Dim maxLength As Integer = Math.Max(code.Length, documentText.Length)&#xD;&#xA;Dim minLength As Integer = Math.Min(code.Length, documentText.Length)&#xD;&#xA;Dim minSimilarityLen As Integer = CInt(Math.Ceiling(code.Length * lengthThreshold / 100))&#xD;&#xA;Dim occurrences As Integer = 0&#xD;&#xA;&#xD;&#xA;If code.Length &gt; documentText.Length Then&#xD;&#xA;    isValid = False&#xD;&#xA;Else&#xD;&#xA;    For len As Integer = minSimilarityLen To code.Length&#xD;&#xA;        For i As Integer = 0 To documentText.Length - len&#xD;&#xA;            Dim substring As String = documentText.Substring(i, len)&#xD;&#xA;&#xD;&#xA;            ' SimilarityPercentage&#xD;&#xA;            Dim s1 As String = code&#xD;&#xA;            Dim s2 As String = substring&#xD;&#xA;            Dim distance As Integer&#xD;&#xA;            Dim n = s1.Length&#xD;&#xA;            Dim m = s2.Length&#xD;&#xA;            Dim d(n + 1, m + 1) As Integer&#xD;&#xA;&#xD;&#xA;            If n &lt;&gt; 0 AndAlso m &lt;&gt; 0 Then&#xD;&#xA;                For i1 = 0 To n&#xD;&#xA;                    d(i1, 0) = i1&#xD;&#xA;                Next&#xD;&#xA;&#xD;&#xA;                For j = 0 To m&#xD;&#xA;                    d(0, j) = j&#xD;&#xA;                Next&#xD;&#xA;&#xD;&#xA;                For i1 = 1 To n&#xD;&#xA;                    For j = 1 To m&#xD;&#xA;                        Dim cost = If(s2(j - 1) = s1(i1 - 1), 0, 1)&#xD;&#xA;&#xD;&#xA;                        d(i1, j) = Math.Min(Math.Min(d(i1 - 1, j) + 1, d(i1, j - 1) + 1), d(i1 - 1, j - 1) + cost)&#xD;&#xA;                    Next&#xD;&#xA;                Next&#xD;&#xA;&#xD;&#xA;                distance = d(n, m)&#xD;&#xA;            ElseIf n = 0 Then&#xD;&#xA;                distance = m&#xD;&#xA;            Else&#xD;&#xA;                distance = n&#xD;&#xA;            End If&#xD;&#xA;&#xD;&#xA;            Dim similarity As Double = 100.0 * (1.0 - (CDbl(distance) / Math.Max(s1.Length, s2.Length)))&#xD;&#xA;&#xD;&#xA;            If similarity &gt; maxSimilarity Then ' Actualizar el valor máximo de similitud si se encuentra uno mayor&#xD;&#xA;                maxSimilarity = similarity&#xD;&#xA;            End If&#xD;&#xA;&#xD;&#xA;            If similarity &gt;= similarityThreshold Then&#xD;&#xA;                occurrences += 1&#xD;&#xA;&#xD;&#xA;                If occurrences &gt;= minOccurrences Then&#xD;&#xA;                    isValid = True&#xD;&#xA;                    Exit For&#xD;&#xA;                End If&#xD;&#xA;            End If&#xD;&#xA;        Next&#xD;&#xA;        If isValid Then Exit For&#xD;&#xA;    Next&#xD;&#xA;&#xD;&#xA;    If Not isValid Then&#xD;&#xA;        isValid = False&#xD;&#xA;    End If&#xD;&#xA;End If&#xD;&#xA;" ContinueOnError="True" DisplayName="Invoke Code" sap:VirtualizedContainerService.HintSize="910.4,164.8" sap2010:WorkflowViewState.IdRef="InvokeCode_1">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="code">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_EmpresaContratista.Replace(&quot;Á&quot;,&quot;A&quot;).Replace(&quot;È&quot;,&quot;E&quot;).Replace(&quot;À&quot;,&quot;A&quot;).Replace(&quot;É&quot;,&quot;E&quot;).Replace(&quot;Ó&quot;,&quot;O&quot;).Replace(&quot;Ò&quot;,&quot;O&quot;).Replace(&quot;Ì&quot;,&quot;I&quot;).Replace(&quot;Í&quot;,&quot;I&quot;).Replace(&quot;Ú&quot;,&quot;U&quot;).Replace(&quot;Ù&quot;,&quot;U&quot;).Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;,S.L.&quot;,&quot;&quot;).Replace(&quot;,SLU&quot;,&quot;&quot;).Replace(&quot;,&quot;,&quot;&quot;)" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="documentText">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="pdfText.Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;Á&quot;,&quot;A&quot;).Replace(&quot;È&quot;,&quot;E&quot;).Replace(&quot;À&quot;,&quot;A&quot;).Replace(&quot;É&quot;,&quot;E&quot;).Replace(&quot;Ó&quot;,&quot;O&quot;).Replace(&quot;Ò&quot;,&quot;O&quot;).Replace(&quot;Ì&quot;,&quot;I&quot;).Replace(&quot;Í&quot;,&quot;I&quot;).Replace(&quot;Ú&quot;,&quot;U&quot;).Replace(&quot;Ù&quot;,&quot;U&quot;)" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Double" x:Key="lengthThreshold">
+          <Literal x:TypeArguments="x:Double" Value="70" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Double" x:Key="similarityThreshold">
+          <Literal x:TypeArguments="x:Double" Value="70" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="minOccurrences">
+          <Literal x:TypeArguments="x:Int32" Value="1" />
+        </InArgument>
+        <OutArgument x:TypeArguments="x:Boolean" x:Key="isValid">
+          <VisualBasicReference x:TypeArguments="x:Boolean" ExpressionText="empresaExists" />
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Double" x:Key="maxSimilarity">
+          <VisualBasicReference x:TypeArguments="x:Double" ExpressionText="similarityEmpresa" />
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:CommentOut DisplayName="Comment Out" sap:VirtualizedContainerService.HintSize="910.4,283.2" sap2010:WorkflowViewState.IdRef="CommentOut_26">
+      <ui:CommentOut.Body>
+        <Sequence DisplayName="Ignored Activities" sap:VirtualizedContainerService.HintSize="449.6,164.8" sap2010:WorkflowViewState.IdRef="Sequence_147">
           <sap:WorkflowViewStateService.ViewState>
             <scg:Dictionary x:TypeArguments="x:String, x:Object">
               <x:Boolean x:Key="IsExpanded">True</x:Boolean>
             </scg:Dictionary>
           </sap:WorkflowViewStateService.ViewState>
-          <Assign sap:VirtualizedContainerService.HintSize="433.6,81.6" sap2010:WorkflowViewState.IdRef="Assign_1">
-            <Assign.To>
-              <OutArgument x:TypeArguments="x:Boolean">[empresaExists]</OutArgument>
-            </Assign.To>
-            <Assign.Value>
-              <InArgument x:TypeArguments="x:Boolean">True</InArgument>
-            </Assign.Value>
-          </Assign>
+          <If Condition="[pdfText.Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;Á&quot;,&quot;A&quot;).Replace(&quot;È&quot;,&quot;E&quot;).Replace(&quot;À&quot;,&quot;A&quot;).Replace(&quot;É&quot;,&quot;E&quot;).Replace(&quot;Ó&quot;,&quot;O&quot;).Replace(&quot;Ò&quot;,&quot;O&quot;).Replace(&quot;Ì&quot;,&quot;I&quot;).Replace(&quot;Í&quot;,&quot;I&quot;).Replace(&quot;Ú&quot;,&quot;U&quot;).Replace(&quot;Ù&quot;,&quot;U&quot;).Contains(in_EmpresaContratista.Replace(&quot;Á&quot;,&quot;A&quot;).Replace(&quot;È&quot;,&quot;E&quot;).Replace(&quot;À&quot;,&quot;A&quot;).Replace(&quot;É&quot;,&quot;E&quot;).Replace(&quot;Ó&quot;,&quot;O&quot;).Replace(&quot;Ò&quot;,&quot;O&quot;).Replace(&quot;Ì&quot;,&quot;I&quot;).Replace(&quot;Í&quot;,&quot;I&quot;).Replace(&quot;Ú&quot;,&quot;U&quot;).Replace(&quot;Ù&quot;,&quot;U&quot;).Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;,S.L.&quot;,&quot;&quot;).Replace(&quot;ABELLO&quot;,&quot;&quot;).Replace(&quot;,SLU&quot;,&quot;&quot;).Replace(&quot;,&quot;,&quot;&quot;))]" DisplayName="If empresa contratista exists" sap:VirtualizedContainerService.HintSize="387.2,52.8" sap2010:WorkflowViewState.IdRef="If_1">
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+                <x:Boolean x:Key="IsPinned">False</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+            <If.Then>
+              <Sequence sap:VirtualizedContainerService.HintSize="476.8,171.2" sap2010:WorkflowViewState.IdRef="Sequence_2">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <Assign sap:VirtualizedContainerService.HintSize="433.6,81.6" sap2010:WorkflowViewState.IdRef="Assign_1">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Boolean">[empresaExists]</OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Boolean">True</InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </If.Then>
+            <If.Else>
+              <Sequence sap:VirtualizedContainerService.HintSize="476.8,171.2" sap2010:WorkflowViewState.IdRef="Sequence_3">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <Assign sap:VirtualizedContainerService.HintSize="433.6,81.6" sap2010:WorkflowViewState.IdRef="Assign_7">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Boolean">[empresaExists]</OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Boolean">False</InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </If.Else>
+          </If>
         </Sequence>
-      </If.Then>
-      <If.Else>
-        <Sequence sap:VirtualizedContainerService.HintSize="476.8,171.2" sap2010:WorkflowViewState.IdRef="Sequence_3">
-          <sap:WorkflowViewStateService.ViewState>
-            <scg:Dictionary x:TypeArguments="x:String, x:Object">
-              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
-            </scg:Dictionary>
-          </sap:WorkflowViewStateService.ViewState>
-          <Assign sap:VirtualizedContainerService.HintSize="433.6,81.6" sap2010:WorkflowViewState.IdRef="Assign_7">
-            <Assign.To>
-              <OutArgument x:TypeArguments="x:Boolean">[empresaExists]</OutArgument>
-            </Assign.To>
-            <Assign.Value>
-              <InArgument x:TypeArguments="x:Boolean">False</InArgument>
-            </Assign.Value>
-          </Assign>
-        </Sequence>
-      </If.Else>
-    </If>
+      </ui:CommentOut.Body>
+    </ui:CommentOut>
     <If Condition="[pdfText.Contains(in_CIF.ToUpper)]" DisplayName="If CIF exists" sap:VirtualizedContainerService.HintSize="910.4,525.6" sap2010:WorkflowViewState.IdRef="If_2">
       <sap:WorkflowViewStateService.ViewState>
         <scg:Dictionary x:TypeArguments="x:String, x:Object">
@@ -294,7 +331,7 @@
         </Sequence>
       </If.Else>
     </If>
-    <If Condition="[pdfText.Replace(&quot;.&quot;,&quot;&quot;).Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;/&quot;,&quot;&quot;).Replace(&quot; &quot;,&quot;&quot;).Contains(in_DNI.ToUpper)]" DisplayName="If pdf contiene dni" sap:VirtualizedContainerService.HintSize="910.4,493.6" sap2010:WorkflowViewState.IdRef="If_5">
+    <If Condition="[pdfText.Replace(&quot;.&quot;,&quot;&quot;).Replace(&quot;-&quot;,&quot;&quot;).Replace(&quot;/&quot;,&quot;&quot;).Replace(&quot; &quot;,&quot;&quot;).Contains(in_DNI.ToUpper)]" DisplayName="If pdf contiene dni" sap:VirtualizedContainerService.HintSize="910.4,525.6" sap2010:WorkflowViewState.IdRef="If_5">
       <sap:WorkflowViewStateService.ViewState>
         <scg:Dictionary x:TypeArguments="x:String, x:Object">
           <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -336,9 +373,9 @@
         </Sequence>
       </If.Else>
     </If>
-    <If Condition="[pdfText.Contains(&quot;En los informes de aptitud, se refleja, individual y específicamente para&quot;.ToUpper)]" sap:VirtualizedContainerService.HintSize="910.4,3332" sap2010:WorkflowViewState.IdRef="If_47">
+    <If Condition="[pdfText.Contains(&quot;En los informes de aptitud, se refleja, individual y específicamente para&quot;.ToUpper)]" sap:VirtualizedContainerService.HintSize="910.4,3231.2" sap2010:WorkflowViewState.IdRef="If_47">
       <If.Then>
-        <Sequence sap:VirtualizedContainerService.HintSize="649.6,1651.2" sap2010:WorkflowViewState.IdRef="Sequence_135">
+        <Sequence sap:VirtualizedContainerService.HintSize="649.6,1584.8" sap2010:WorkflowViewState.IdRef="Sequence_135">
           <sap:WorkflowViewStateService.ViewState>
             <scg:Dictionary x:TypeArguments="x:String, x:Object">
               <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -352,23 +389,22 @@
               <InArgument x:TypeArguments="x:String">[split(pdfText,"En los informes de aptitud, se refleja, individual y específicamente para".ToUpper)(0)]</InArgument>
             </Assign.Value>
           </Assign>
-          <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion" sap:VirtualizedContainerService.HintSize="606.4,1440" sap2010:WorkflowViewState.IdRef="ForEachRow_7">
+          <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion" sap:VirtualizedContainerService.HintSize="606.4,1373.6" sap2010:WorkflowViewState.IdRef="ForEachRow_7">
             <ui:ForEachRow.Body>
               <ActivityAction x:TypeArguments="sd:DataRow">
                 <ActivityAction.Argument>
                   <DelegateInArgument x:TypeArguments="sd:DataRow" Name="CurrentRow" />
                 </ActivityAction.Argument>
-                <Sequence DisplayName="Body buscar criterios NO validacion" sap:VirtualizedContainerService.HintSize="572.8,1324" sap2010:WorkflowViewState.IdRef="Sequence_141">
+                <Sequence DisplayName="Body buscar criterios NO validacion" sap:VirtualizedContainerService.HintSize="572.8,1257.6" sap2010:WorkflowViewState.IdRef="Sequence_141">
                   <sap:WorkflowViewStateService.ViewState>
                     <scg:Dictionary x:TypeArguments="x:String, x:Object">
                       <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                       <x:Boolean x:Key="IsPinned">False</x:Boolean>
                     </scg:Dictionary>
                   </sap:WorkflowViewStateService.ViewState>
-                  <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="510.4,90.4" sap2010:WorkflowViewState.IdRef="WriteLine_43" Text="[CurrentRow(1).tostring.ToUpper]" />
-                  <If Condition="[pdfTextLeyenda.Contains(CurrentRow(1).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(1).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="510.4,1081.6" sap2010:WorkflowViewState.IdRef="If_48">
+                  <If Condition="[pdfTextLeyenda.Contains(CurrentRow(1).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(1).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="510.4,1145.6" sap2010:WorkflowViewState.IdRef="If_48">
                     <If.Then>
-                      <Sequence sap:VirtualizedContainerService.HintSize="476.8,848" sap2010:WorkflowViewState.IdRef="Sequence_139">
+                      <Sequence sap:VirtualizedContainerService.HintSize="476.8,880" sap2010:WorkflowViewState.IdRef="Sequence_139">
                         <sap:WorkflowViewStateService.ViewState>
                           <scg:Dictionary x:TypeArguments="x:String, x:Object">
                             <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -382,7 +418,7 @@
                             <InArgument x:TypeArguments="x:Boolean">True</InArgument>
                           </Assign.Value>
                         </Assign>
-                        <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,439.2" sap2010:WorkflowViewState.IdRef="If_49">
+                        <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,471.2" sap2010:WorkflowViewState.IdRef="If_49">
                           <If.Then>
                             <Sequence sap:VirtualizedContainerService.HintSize="376.8,205.6" sap2010:WorkflowViewState.IdRef="Sequence_137">
                               <sap:WorkflowViewStateService.ViewState>
@@ -434,29 +470,28 @@
         </Sequence>
       </If.Then>
       <If.Else>
-        <Sequence sap:VirtualizedContainerService.HintSize="649.6,1529.6" sap2010:WorkflowViewState.IdRef="Sequence_136">
+        <Sequence sap:VirtualizedContainerService.HintSize="649.6,1463.2" sap2010:WorkflowViewState.IdRef="Sequence_136">
           <sap:WorkflowViewStateService.ViewState>
             <scg:Dictionary x:TypeArguments="x:String, x:Object">
               <x:Boolean x:Key="IsExpanded">True</x:Boolean>
             </scg:Dictionary>
           </sap:WorkflowViewStateService.ViewState>
-          <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion" sap:VirtualizedContainerService.HintSize="606.4,1440" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
+          <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion" sap:VirtualizedContainerService.HintSize="606.4,1373.6" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
             <ui:ForEachRow.Body>
               <ActivityAction x:TypeArguments="sd:DataRow">
                 <ActivityAction.Argument>
                   <DelegateInArgument x:TypeArguments="sd:DataRow" Name="CurrentRow" />
                 </ActivityAction.Argument>
-                <Sequence DisplayName="Body buscar criterios NO validacion" sap:VirtualizedContainerService.HintSize="572.8,1324" sap2010:WorkflowViewState.IdRef="Sequence_31">
+                <Sequence DisplayName="Body buscar criterios NO validacion" sap:VirtualizedContainerService.HintSize="572.8,1257.6" sap2010:WorkflowViewState.IdRef="Sequence_31">
                   <sap:WorkflowViewStateService.ViewState>
                     <scg:Dictionary x:TypeArguments="x:String, x:Object">
                       <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                       <x:Boolean x:Key="IsPinned">False</x:Boolean>
                     </scg:Dictionary>
                   </sap:WorkflowViewStateService.ViewState>
-                  <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="510.4,90.4" sap2010:WorkflowViewState.IdRef="WriteLine_20" Text="[CurrentRow(1).tostring.ToUpper]" />
-                  <If Condition="[pdfText.Contains(CurrentRow(1).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(1).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="510.4,1081.6" sap2010:WorkflowViewState.IdRef="If_16">
+                  <If Condition="[pdfText.Contains(CurrentRow(1).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(1).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="510.4,1145.6" sap2010:WorkflowViewState.IdRef="If_16">
                     <If.Then>
-                      <Sequence sap:VirtualizedContainerService.HintSize="476.8,848" sap2010:WorkflowViewState.IdRef="Sequence_47">
+                      <Sequence sap:VirtualizedContainerService.HintSize="476.8,880" sap2010:WorkflowViewState.IdRef="Sequence_47">
                         <sap:WorkflowViewStateService.ViewState>
                           <scg:Dictionary x:TypeArguments="x:String, x:Object">
                             <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -470,7 +505,7 @@
                             <InArgument x:TypeArguments="x:Boolean">True</InArgument>
                           </Assign.Value>
                         </Assign>
-                        <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,439.2" sap2010:WorkflowViewState.IdRef="If_34">
+                        <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,471.2" sap2010:WorkflowViewState.IdRef="If_34">
                           <If.Then>
                             <Sequence sap:VirtualizedContainerService.HintSize="376.8,205.6" sap2010:WorkflowViewState.IdRef="Sequence_109">
                               <sap:WorkflowViewStateService.ViewState>
@@ -522,7 +557,7 @@
         </Sequence>
       </If.Else>
     </If>
-    <If Condition="[validacionNegativaExists = True]" DisplayName="If validacion negativa encontrada no hacer nada" sap:VirtualizedContainerService.HintSize="910.4,3623.2" sap2010:WorkflowViewState.IdRef="If_15">
+    <If Condition="[validacionNegativaExists = True]" DisplayName="If validacion negativa encontrada no hacer nada" sap:VirtualizedContainerService.HintSize="910.4,3586.4" sap2010:WorkflowViewState.IdRef="If_15">
       <sap:WorkflowViewStateService.ViewState>
         <scg:Dictionary x:TypeArguments="x:String, x:Object">
           <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -540,38 +575,37 @@
         </Assign>
       </If.Then>
       <If.Else>
-        <Sequence sap:VirtualizedContainerService.HintSize="726.4,3390.4" sap2010:WorkflowViewState.IdRef="Sequence_45">
+        <Sequence sap:VirtualizedContainerService.HintSize="726.4,3321.6" sap2010:WorkflowViewState.IdRef="Sequence_45">
           <sap:WorkflowViewStateService.ViewState>
             <scg:Dictionary x:TypeArguments="x:String, x:Object">
               <x:Boolean x:Key="IsExpanded">True</x:Boolean>
               <x:Boolean x:Key="IsPinned">False</x:Boolean>
             </scg:Dictionary>
           </sap:WorkflowViewStateService.ViewState>
-          <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion" sap:VirtualizedContainerService.HintSize="683.2,1630.4" sap2010:WorkflowViewState.IdRef="ForEachRow_6">
+          <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion" sap:VirtualizedContainerService.HintSize="683.2,1596" sap2010:WorkflowViewState.IdRef="ForEachRow_6">
             <ui:ForEachRow.Body>
               <ActivityAction x:TypeArguments="sd:DataRow">
                 <ActivityAction.Argument>
                   <DelegateInArgument x:TypeArguments="sd:DataRow" Name="CurrentRow" />
                 </ActivityAction.Argument>
-                <Sequence DisplayName="Body buscar criterios NO validacion" sap:VirtualizedContainerService.HintSize="649.6,1514.4" sap2010:WorkflowViewState.IdRef="Sequence_101">
+                <Sequence DisplayName="Body buscar criterios NO validacion" sap:VirtualizedContainerService.HintSize="649.6,1480" sap2010:WorkflowViewState.IdRef="Sequence_101">
                   <sap:WorkflowViewStateService.ViewState>
                     <scg:Dictionary x:TypeArguments="x:String, x:Object">
                       <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                       <x:Boolean x:Key="IsPinned">False</x:Boolean>
                     </scg:Dictionary>
                   </sap:WorkflowViewStateService.ViewState>
-                  <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="587.2,90.4" sap2010:WorkflowViewState.IdRef="WriteLine_42" Text="[CurrentRow(3).tostring.ToUpper]" />
-                  <If Condition="[pdfText.Contains(CurrentRow(3).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(3).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="587.2,1272" sap2010:WorkflowViewState.IdRef="If_30">
+                  <If Condition="[pdfText.Contains(CurrentRow(3).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(3).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="587.2,1368" sap2010:WorkflowViewState.IdRef="If_30">
                     <If.Then>
-                      <Sequence sap:VirtualizedContainerService.HintSize="553.6,1038.4" sap2010:WorkflowViewState.IdRef="Sequence_99">
+                      <Sequence sap:VirtualizedContainerService.HintSize="553.6,1102.4" sap2010:WorkflowViewState.IdRef="Sequence_99">
                         <sap:WorkflowViewStateService.ViewState>
                           <scg:Dictionary x:TypeArguments="x:String, x:Object">
                             <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                           </scg:Dictionary>
                         </sap:WorkflowViewStateService.ViewState>
-                        <If Condition="[pdfText.Contains(&quot;APTO&quot;) or pdfText.Contains(&quot;APTE&quot;)]" sap:VirtualizedContainerService.HintSize="510.4,948.8" sap2010:WorkflowViewState.IdRef="If_31">
+                        <If Condition="[pdfText.Contains(&quot;APTO&quot;) or pdfText.Contains(&quot;APTE&quot;)]" sap:VirtualizedContainerService.HintSize="510.4,1012.8" sap2010:WorkflowViewState.IdRef="If_31">
                           <If.Then>
-                            <Sequence sap:VirtualizedContainerService.HintSize="476.8,715.2" sap2010:WorkflowViewState.IdRef="Sequence_103">
+                            <Sequence sap:VirtualizedContainerService.HintSize="476.8,747.2" sap2010:WorkflowViewState.IdRef="Sequence_103">
                               <sap:WorkflowViewStateService.ViewState>
                                 <scg:Dictionary x:TypeArguments="x:String, x:Object">
                                   <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -585,7 +619,7 @@
                                   <InArgument x:TypeArguments="x:Boolean">True</InArgument>
                                 </Assign.Value>
                               </Assign>
-                              <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,439.2" sap2010:WorkflowViewState.IdRef="If_35">
+                              <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,471.2" sap2010:WorkflowViewState.IdRef="If_35">
                                 <If.Then>
                                   <Sequence sap:VirtualizedContainerService.HintSize="376.8,205.6" sap2010:WorkflowViewState.IdRef="Sequence_111">
                                     <sap:WorkflowViewStateService.ViewState>
@@ -645,7 +679,7 @@
               </scg:Dictionary>
             </sap:WorkflowViewStateService.ViewState>
           </ui:ForEachRow>
-          <If Condition="[validacionExists]" sap:VirtualizedContainerService.HintSize="683.2,1630.4" sap2010:WorkflowViewState.IdRef="If_32">
+          <If Condition="[validacionExists]" sap:VirtualizedContainerService.HintSize="683.2,1596" sap2010:WorkflowViewState.IdRef="If_32">
             <If.Then>
               <Sequence sap:VirtualizedContainerService.HintSize="300,82.4" sap2010:WorkflowViewState.IdRef="Sequence_105">
                 <sap:WorkflowViewStateService.ViewState>
@@ -656,29 +690,28 @@
               </Sequence>
             </If.Then>
             <If.Else>
-              <Sequence sap:VirtualizedContainerService.HintSize="649.6,1396.8" sap2010:WorkflowViewState.IdRef="Sequence_106">
+              <Sequence sap:VirtualizedContainerService.HintSize="649.6,1330.4" sap2010:WorkflowViewState.IdRef="Sequence_106">
                 <sap:WorkflowViewStateService.ViewState>
                   <scg:Dictionary x:TypeArguments="x:String, x:Object">
                     <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                   </scg:Dictionary>
                 </sap:WorkflowViewStateService.ViewState>
-                <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion positivos" sap:VirtualizedContainerService.HintSize="606.4,1307.2" sap2010:WorkflowViewState.IdRef="ForEachRow_3">
+                <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[criteriosValidacion]" DisplayName="For Each Row in Data Table criterios validacion positivos" sap:VirtualizedContainerService.HintSize="606.4,1240.8" sap2010:WorkflowViewState.IdRef="ForEachRow_3">
                   <ui:ForEachRow.Body>
                     <ActivityAction x:TypeArguments="sd:DataRow">
                       <ActivityAction.Argument>
                         <DelegateInArgument x:TypeArguments="sd:DataRow" Name="CurrentRow" />
                       </ActivityAction.Argument>
-                      <Sequence DisplayName="Body buscar criterios de validacion" sap:VirtualizedContainerService.HintSize="572.8,1191.2" sap2010:WorkflowViewState.IdRef="Sequence_53">
+                      <Sequence DisplayName="Body buscar criterios de validacion" sap:VirtualizedContainerService.HintSize="572.8,1124.8" sap2010:WorkflowViewState.IdRef="Sequence_53">
                         <sap:WorkflowViewStateService.ViewState>
                           <scg:Dictionary x:TypeArguments="x:String, x:Object">
                             <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                             <x:Boolean x:Key="IsPinned">False</x:Boolean>
                           </scg:Dictionary>
                         </sap:WorkflowViewStateService.ViewState>
-                        <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="510.4,90.4" sap2010:WorkflowViewState.IdRef="WriteLine_19" Text="[CurrentRow(0).tostring.ToUpper]" />
-                        <If Condition="[pdfText.Contains(CurrentRow(0).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(0).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="510.4,948.8" sap2010:WorkflowViewState.IdRef="If_10">
+                        <If Condition="[pdfText.Contains(CurrentRow(0).tostring.ToUpper) and Not string.IsNullOrEmpty(CurrentRow(0).tostring.ToUpper)]" sap:VirtualizedContainerService.HintSize="510.4,1012.8" sap2010:WorkflowViewState.IdRef="If_10">
                           <If.Then>
-                            <Sequence sap:VirtualizedContainerService.HintSize="476.8,715.2" sap2010:WorkflowViewState.IdRef="Sequence_32">
+                            <Sequence sap:VirtualizedContainerService.HintSize="476.8,747.2" sap2010:WorkflowViewState.IdRef="Sequence_32">
                               <sap:WorkflowViewStateService.ViewState>
                                 <scg:Dictionary x:TypeArguments="x:String, x:Object">
                                   <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -692,7 +725,7 @@
                                   <InArgument x:TypeArguments="x:Boolean">True</InArgument>
                                 </Assign.Value>
                               </Assign>
-                              <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,439.2" sap2010:WorkflowViewState.IdRef="If_36">
+                              <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,471.2" sap2010:WorkflowViewState.IdRef="If_36">
                                 <If.Then>
                                   <Sequence sap:VirtualizedContainerService.HintSize="376.8,205.6" sap2010:WorkflowViewState.IdRef="Sequence_113">
                                     <sap:WorkflowViewStateService.ViewState>
@@ -746,7 +779,7 @@
         </Sequence>
       </If.Else>
     </If>
-    <If Condition="[validacionExists]" DisplayName="If validacion validada no hacer nada" sap:VirtualizedContainerService.HintSize="910.4,884" sap2010:WorkflowViewState.IdRef="If_19">
+    <If Condition="[validacionExists]" DisplayName="If validacion validada no hacer nada" sap:VirtualizedContainerService.HintSize="910.4,948" sap2010:WorkflowViewState.IdRef="If_19">
       <sap:WorkflowViewStateService.ViewState>
         <scg:Dictionary x:TypeArguments="x:String, x:Object">
           <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -763,7 +796,7 @@
         </Sequence>
       </If.Then>
       <If.Else>
-        <Sequence sap:VirtualizedContainerService.HintSize="476.8,650.4" sap2010:WorkflowViewState.IdRef="Sequence_55">
+        <Sequence sap:VirtualizedContainerService.HintSize="476.8,682.4" sap2010:WorkflowViewState.IdRef="Sequence_55">
           <sap:WorkflowViewStateService.ViewState>
             <scg:Dictionary x:TypeArguments="x:String, x:Object">
               <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -777,7 +810,7 @@
               <InArgument x:TypeArguments="x:Boolean">False</InArgument>
             </Assign.Value>
           </Assign>
-          <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,439.2" sap2010:WorkflowViewState.IdRef="If_37">
+          <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,471.2" sap2010:WorkflowViewState.IdRef="If_37">
             <If.Then>
               <Sequence sap:VirtualizedContainerService.HintSize="376.8,205.6" sap2010:WorkflowViewState.IdRef="Sequence_115">
                 <sap:WorkflowViewStateService.ViewState>
@@ -831,7 +864,7 @@
         </Sequence>
       </If.Else>
     </If>
-    <If Condition="[pdfText.Contains(&quot;PREVING&quot;) or pdfText.Contains(&quot;QUIRONPREVENCION&quot;) or pdfText.Contains(&quot;EUROPREVEN&quot;)]" DisplayName="If documento es de preving o quiron" sap:VirtualizedContainerService.HintSize="910.4,11044" sap2010:WorkflowViewState.IdRef="If_25">
+    <If Condition="[pdfText.Contains(&quot;PREVING&quot;) or pdfText.Contains(&quot;QUIRONPREVENCION&quot;) or pdfText.Contains(&quot;EUROPREVEN&quot;)]" DisplayName="If documento es de preving o quiron" sap:VirtualizedContainerService.HintSize="910.4,7332" sap2010:WorkflowViewState.IdRef="If_25">
       <sap:WorkflowViewStateService.ViewState>
         <scg:Dictionary x:TypeArguments="x:String, x:Object">
           <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -1096,15 +1129,15 @@
         </Sequence>
       </If.Then>
       <If.Else>
-        <Sequence sap:VirtualizedContainerService.HintSize="876.8,7052.8" sap2010:WorkflowViewState.IdRef="Sequence_76">
+        <Sequence sap:VirtualizedContainerService.HintSize="876.8,7148.8" sap2010:WorkflowViewState.IdRef="Sequence_76">
           <sap:WorkflowViewStateService.ViewState>
             <scg:Dictionary x:TypeArguments="x:String, x:Object">
               <x:Boolean x:Key="IsExpanded">True</x:Boolean>
             </scg:Dictionary>
           </sap:WorkflowViewStateService.ViewState>
-          <If Condition="[pdfText.Replace(&quot;-&quot;,&quot;/&quot;).Replace(&quot;.&quot;,&quot;/&quot;).Contains(in_FechaExpedicion)]" DisplayName="If pdf contains fecha" sap:VirtualizedContainerService.HintSize="833.6,6963.2" sap2010:WorkflowViewState.IdRef="If_9">
+          <If Condition="[pdfText.Replace(&quot;-&quot;,&quot;/&quot;).Replace(&quot;.&quot;,&quot;/&quot;).Contains(in_FechaExpedicion)]" DisplayName="If pdf contains fecha" sap:VirtualizedContainerService.HintSize="833.6,7059.2" sap2010:WorkflowViewState.IdRef="If_9">
             <If.Then>
-              <Sequence sap:VirtualizedContainerService.HintSize="476.8,928" sap2010:WorkflowViewState.IdRef="Sequence_26">
+              <Sequence sap:VirtualizedContainerService.HintSize="476.8,960" sap2010:WorkflowViewState.IdRef="Sequence_26">
                 <sap:WorkflowViewStateService.ViewState>
                   <scg:Dictionary x:TypeArguments="x:String, x:Object">
                     <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -1126,7 +1159,7 @@
                     <InArgument x:TypeArguments="x:String">[in_FechaExpedicion]</InArgument>
                   </Assign.Value>
                 </Assign>
-                <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,595.2" sap2010:WorkflowViewState.IdRef="If_38">
+                <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="433.6,627.2" sap2010:WorkflowViewState.IdRef="If_38">
                   <If.Then>
                     <Sequence sap:VirtualizedContainerService.HintSize="376.8,361.6" sap2010:WorkflowViewState.IdRef="Sequence_117">
                       <sap:WorkflowViewStateService.ViewState>
@@ -1151,7 +1184,7 @@
               </Sequence>
             </If.Then>
             <If.Else>
-              <Sequence DisplayName="Sequence buscar fecha con regex" sap:VirtualizedContainerService.HintSize="800,5884" sap2010:WorkflowViewState.IdRef="Sequence_27">
+              <Sequence DisplayName="Sequence buscar fecha con regex" sap:VirtualizedContainerService.HintSize="800,5916" sap2010:WorkflowViewState.IdRef="Sequence_27">
                 <sap:WorkflowViewStateService.ViewState>
                   <scg:Dictionary x:TypeArguments="x:String, x:Object">
                     <x:Boolean x:Key="IsExpanded">True</x:Boolean>
@@ -1166,7 +1199,7 @@
                     <InArgument x:TypeArguments="x:Boolean">False</InArgument>
                   </Assign.Value>
                 </Assign>
-                <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="756.8,439.2" sap2010:WorkflowViewState.IdRef="If_39">
+                <If Condition="[generarInforme = &quot;Si&quot;]" sap:VirtualizedContainerService.HintSize="756.8,471.2" sap2010:WorkflowViewState.IdRef="If_39">
                   <If.Then>
                     <Sequence sap:VirtualizedContainerService.HintSize="376.8,205.6" sap2010:WorkflowViewState.IdRef="Sequence_119">
                       <sap:WorkflowViewStateService.ViewState>

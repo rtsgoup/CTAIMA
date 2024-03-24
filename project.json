@@ -1,20 +1,24 @@
 {
   "name": "OP_001_020_ValidacionDocumentos",
+  "projectId": "cf0ab271-5c04-426a-ac60-f71f5a03ce7b",
   "description": "Blank Process",
   "main": "Main.xaml",
   "dependencies": {
     "UiPath.Excel.Activities": "[2.17.0-preview]",
+    "UiPath.IntegrationService.Activities": "[1.3.0]",
     "UiPath.Mail.Activities": "[1.18.2]",
+    "UiPath.MicrosoftAzureOpenAI.IntegrationService.Activities": "[7.1.0]",
     "UiPath.PDF.Activities": "[3.12.0-preview]",
     "UiPath.System.Activities": "[22.10.4]",
     "UiPath.Testing.Activities": "[22.12.0-preview]",
-    "UiPath.UIAutomation.Activities": "[23.1.0-preview]"
+    "UiPath.UIAutomation.Activities": "[23.1.0-preview]",
+    "UiPath.WebAPI.Activities": "[1.18.0]"
   },
   "webServices": [],
   "entitiesStores": [],
   "schemaVersion": "4.0",
   "studioVersion": "22.12.0.0",
-  "projectVersion": "1.0.115",
+  "projectVersion": "1.0.133",
   "runtimeOptions": {
     "autoDispose": false,
     "netFrameworkLazyLoading": false,
@@ -44,7 +48,8 @@
       "ignoredFiles": []
     },
     "fileInfoCollection": [],
-    "modernBehavior": true
+    "modernBehavior": true,
+    "saveToCloud": false
   },
   "expressionLanguage": "VisualBasic",
   "entryPoints": [
